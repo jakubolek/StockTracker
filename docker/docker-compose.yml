@@ -25,10 +25,10 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
 
-  # app:
-  #   build: ../frontend
-  #   container_name: app
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - api
+  app:
+    build: ../frontend
+    container_name: app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api

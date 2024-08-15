@@ -3,10 +3,7 @@ import {Stock} from "../model/Stock";
 import {StockDto} from "../model/StockDto";
 import {PortfolioSummaryData} from "../model/PortfolioSummaryData";
 
-// container:
-// const API_URL = '/api/stocks';
-
-const API_URL = 'http://localhost:8080/api/stocks';
+const API_URL = '/api/stocks';
 
 class StockService {
     addStock(stock: StockDto) {
@@ -19,7 +16,6 @@ class StockService {
 
     deleteStock(id: number) {
         return axios.delete(`${API_URL}/${id}`);
-
     }
 
     getAggregatedReport() {
