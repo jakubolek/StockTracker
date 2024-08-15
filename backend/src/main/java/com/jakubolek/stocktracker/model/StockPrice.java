@@ -16,14 +16,13 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Stock {
+public class StockPrice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String symbol;
     private String name;
-    private LocalDate purchaseDate;
-    private Double purchasePrice;
-    private Double quantity;
+    private Double price;
+    private LocalDate priceDate;
 }

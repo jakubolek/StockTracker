@@ -10,6 +10,7 @@ public class StockMapper {
     public Stock toEntity(StockDto stockDto) {
         return Stock.builder()
                 .symbol(stockDto.getSymbol().toUpperCase())
+                .name(stockDto.getName())
                 .purchaseDate(stockDto.getPurchaseDate())
                 .purchasePrice(stockDto.getPurchasePrice())
                 .quantity(stockDto.getQuantity())
@@ -20,6 +21,7 @@ public class StockMapper {
         return StockDto.builder()
                 .id(stock.getId())
                 .symbol(stock.getSymbol())
+                .name(stock.getName())
                 .purchaseDate(stock.getPurchaseDate())
                 .purchasePrice(stock.getPurchasePrice())
                 .quantity(stock.getQuantity())

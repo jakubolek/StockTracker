@@ -1,0 +1,17 @@
+.portfolio-summary {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.portfolio-summary p {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.positive {
+    color: green;
+}
+
+.negative {
+    color: red;
+}

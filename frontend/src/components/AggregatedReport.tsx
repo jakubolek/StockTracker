@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import StockService from '../services/StockService';
+import React, {useEffect, useState} from 'react';
+import {stockService} from '../services/StockService';
 import {Stock} from "../model/Stock";
+import '../css/AggregatedReport.css';
 
 const AggregatedReport: React.FC = () => {
-    const [aggregatedReport, setAggregatedReport] = React.useState<Stock[]>([]);
+    const [aggregatedReport, setAggregatedReport] = useState<Stock[]>([]);
 
     useEffect(() => {
-        fetchAggregatedReport();
+        stockService.getAggregatedReport()
+            .then(response => {
+                if (response) {
+                    setAggregatedReport(response.data);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching aggregated report:', error);
+            });
     }, []);
 
-    const fetchAggregatedReport = () => {
-        StockService.getAggregatedReport()
-            .then((response: any) => {
-                setAggregatedReport(response.data);
-            })
-            .catch((error: any) => {
-                console.error('There was an error retrieving the report!', error);
-            });
-    };
-
     return (
-        <div>
-            <h2>Aggregated stock table</h2>
+        <div className="aggregated-report">
+            <h2>Aggregated Stock Table</h2>
             <table>
                 <thead>
                 <tr>
+                    <th>Name</th>
                     <th>Symbol</th>
                     <th>Average Purchase Price</th>
                     <th>Total Quantity</th>
@@ -36,6 +36,7 @@ const AggregatedReport: React.FC = () => {
                 <tbody>
                 {aggregatedReport.map(stock => (
                     <tr key={stock.symbol}>
+                        <td>{stock.name}</td>
                         <td>{stock.symbol}</td>
                         <td>{stock.purchasePrice.toFixed(2)}</td>
                         <td>{stock.quantity}</td>

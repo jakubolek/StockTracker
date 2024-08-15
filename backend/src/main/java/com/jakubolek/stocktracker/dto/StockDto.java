@@ -15,6 +15,7 @@ public class StockDto {
 
     private Long id;
     private String symbol;
+    private String name;
     private LocalDate purchaseDate;
     private Double purchasePrice;
     private Double quantity;
