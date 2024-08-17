@@ -1,7 +1,6 @@
 package com.jakubolek.stocktracker.service;
 
 import com.jakubolek.stocktracker.dto.StockDto;
-import com.jakubolek.stocktracker.model.PortfolioSummary;
 
 import java.util.List;
 
@@ -17,5 +16,4 @@ public interface StockService {
 
     List<StockDto> getAggregatedReport();
 
-    PortfolioSummary calculatePortfolioSummary();
 }

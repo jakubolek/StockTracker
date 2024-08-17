@@ -4,7 +4,6 @@ import com.jakubolek.stocktracker.calculator.StockAggregator;
 import com.jakubolek.stocktracker.dto.StockDto;
 import com.jakubolek.stocktracker.helper.StockPriceHelper;
 import com.jakubolek.stocktracker.mapper.StockMapper;
-import com.jakubolek.stocktracker.model.PortfolioSummary;
 import com.jakubolek.stocktracker.model.Stock;
 import com.jakubolek.stocktracker.model.StockPrice;
 import com.jakubolek.stocktracker.repository.StockRepository;
@@ -144,24 +143,6 @@ public class StockServiceImpl implements StockService {
                 .forEach((symbol, optionalStock) -> optionalStock.ifPresent(stock -> aggregatedStocks.get(symbol).setName(stock.getName())));
 
         return new ArrayList<>(aggregatedStocks.values());
-    }
-
-    @Override
-    public PortfolioSummary calculatePortfolioSummary() {
-        List<StockDto> transactions = getTransactions();
-
-        Double totalInvestment = transactions.stream()
-                .mapToDouble(stock -> stock.getPurchasePrice() * stock.getQuantity())
-                .sum();
-
-        Double totalCurrentValue = transactions.stream()
-                .mapToDouble(stock -> stock.getCurrentPrice() * stock.getQuantity())
-                .sum();
-
-        Double totalProfitOrLoss = totalCurrentValue - totalInvestment;
-        Double percentageChange = totalInvestment > 0 ? (totalProfitOrLoss / totalInvestment) * 100 : 0;
-
-        return new PortfolioSummary(totalProfitOrLoss, percentageChange);
     }
 
 }

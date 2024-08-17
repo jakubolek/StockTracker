@@ -1,5 +1,6 @@
 package com.jakubolek.stocktracker.controller;
 
+import com.jakubolek.stocktracker.calculator.InvestmentSummaryCalculator;
 import com.jakubolek.stocktracker.dto.StockDto;
 import com.jakubolek.stocktracker.model.PortfolioSummary;
 import com.jakubolek.stocktracker.service.StockService;
@@ -15,6 +16,7 @@ import java.util.List;
 public class StockController {
 
     private StockService stockService;
+    private InvestmentSummaryCalculator investmentSummaryCalculator;
 
     @PostMapping
     public ResponseEntity<StockDto> addStock(@RequestBody StockDto stockDto) {
@@ -40,7 +42,7 @@ public class StockController {
 
     @GetMapping("/portfolio-summary")
     public ResponseEntity<PortfolioSummary> getPortfolioSummary() {
-        PortfolioSummary summary = stockService.calculatePortfolioSummary();
+        PortfolioSummary summary = investmentSummaryCalculator.calculatePortfolioSummary();
         return ResponseEntity.ok(summary);
     }
 

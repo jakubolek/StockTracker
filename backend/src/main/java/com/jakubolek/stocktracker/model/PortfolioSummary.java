@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public class PortfolioSummary {
     private Double totalProfitOrLoss;
     private Double percentageChange;
+    private Double totalInvestment;
+    private Double totalCurrentValue;
 }

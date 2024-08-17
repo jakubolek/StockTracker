@@ -4,30 +4,53 @@ import '../css/PortfolioSummary.css';
 import {PortfolioSummaryData} from "../model/PortfolioSummaryData";
 
 const PortfolioSummary: React.FC = () => {
-    const [portfolioSummary, setPortfolioSummary] = useState<PortfolioSummaryData | null>(null);
+    const [summary, setSummary] = useState<PortfolioSummaryData | null>(null);
 
     useEffect(() => {
-        const fetchPortfolioSummary = async () => {
-            const response = await stockService.getPortfolioSummary();
-            if (response) {
-                setPortfolioSummary(response.data);
-            }
-        };
         fetchPortfolioSummary();
     }, []);
+
+    const fetchPortfolioSummary = () => {
+        stockService.getPortfolioSummary()
+            .then((response) => {
+                setSummary(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching portfolio summary:', error);
+            });
+    };
+
+    const getValueClass = (value: number) => {
+        return value >= 0 ? 'positive' : 'negative';
+    };
 
     return (
         <div className="portfolio-summary">
             <h2>Portfolio Summary</h2>
-            {portfolioSummary !== null && (
+            {summary ? (
                 <div>
-                    <p className={portfolioSummary.totalProfitOrLoss >= 0 ? 'positive' : 'negative'}>
-                        {portfolioSummary.totalProfitOrLoss >= 0 ? 'Profit' : 'Loss'}: {portfolioSummary.totalProfitOrLoss.toFixed(2)} PLN
+                    <p><strong>Investment: </strong> {summary.totalInvestment.toFixed(2)} PLN</p>
+                    <p>
+                        <strong>Value: </strong>
+                        <span className={getValueClass(summary.totalCurrentValue - summary.totalInvestment)}>
+                            {summary.totalCurrentValue.toFixed(2)} PLN
+                        </span>
                     </p>
-                    <p className={portfolioSummary.percentageChange >= 0 ? 'positive' : 'negative'}>
-                        {portfolioSummary.percentageChange >= 0 ? 'Profit' : 'Loss'}: {portfolioSummary.percentageChange.toFixed(2)}%
+                    <p>
+                        <strong>{summary.totalCurrentValue > summary.totalInvestment ? 'Profit' : 'Loss'}: </strong>
+                        <span className={getValueClass(summary.totalProfitOrLoss)}>
+                            {summary.totalProfitOrLoss.toFixed(2)} PLN
+                        </span>
+                    </p>
+                    <p>
+                        <strong>Change: </strong>
+                        <span className={getValueClass(summary.percentageChange)}>
+                            {summary.percentageChange.toFixed(2)}%
+                        </span>
                     </p>
                 </div>
+            ) : (
+                <p>Loading...</p>
             )}
         </div>
     );

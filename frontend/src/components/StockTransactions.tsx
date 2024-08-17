@@ -1,7 +1,9 @@
 import React from 'react';
 import {stockService} from '../services/StockService';
 import {Stock} from "../model/Stock";
-import '../css/StockTransactions.css';
+import '../css/Reports.css';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faTrash} from '@fortawesome/free-solid-svg-icons';
 
 const StockTransactions: React.FC = () => {
     const [stocks, setStocks] = React.useState<Stock[]>([]);
@@ -54,12 +56,12 @@ const StockTransactions: React.FC = () => {
                     <th>Purchase Price</th>
                     <th>Quantity</th>
                     <th>Current Price</th>
-                    <th>Profit/Loss</th>
-                    <th>Percentage Change</th>
-                    <th>Profit/Loss (7 Days)</th>
-                    <th>Percentage Change (7 Days)</th>
-                    <th>Profit/Loss (30 Days)</th>
-                    <th>Percentage Change (30 Days)</th>
+                    <th>Change</th>
+                    <th>%</th>
+                    <th>7d</th>
+                    <th>% 7d</th>
+                    <th>30d</th>
+                    <th>% 30d</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -73,25 +75,27 @@ const StockTransactions: React.FC = () => {
                         <td>{stock.quantity}</td>
                         <td>{stock.currentPrice}</td>
                         <td className={getProfitLossClass(stock.profitOrLoss)}>
-                            {stock.profitOrLoss?.toFixed(2)}
+                            {stock.profitOrLoss?.toFixed(2)} PLN
                         </td>
                         <td className={getProfitLossClass(stock.percentageChange)}>
                             {formatPercentage(stock.percentageChange)}
                         </td>
                         <td className={getProfitLossClass(stock.profitOrLoss7Days)}>
-                            {stock.profitOrLoss7Days?.toFixed(2)}
+                            {stock.profitOrLoss7Days?.toFixed(2)} PLN
                         </td>
                         <td className={getProfitLossClass(stock.percentageChange7Days)}>
                             {formatPercentage(stock.percentageChange7Days)}
                         </td>
                         <td className={getProfitLossClass(stock.profitOrLoss30Days)}>
-                            {stock.profitOrLoss30Days?.toFixed(2)}
+                            {stock.profitOrLoss30Days?.toFixed(2)} PLN
                         </td>
                         <td className={getProfitLossClass(stock.percentageChange30Days)}>
                             {formatPercentage(stock.percentageChange30Days)}
                         </td>
                         <td>
-                            <button className="delete-button" onClick={() => handleDelete(stock.id!)}>Delete</button>
+                            <button className="delete-button" onClick={() => handleDelete(stock.id!)}>
+                                <FontAwesomeIcon icon={faTrash}/>
+                            </button>
                         </td>
                     </tr>
                 ))}
