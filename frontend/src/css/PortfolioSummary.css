@@ -1,17 +1,40 @@
 .portfolio-summary {
     text-align: center;
-    margin-top: 20px;
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 600px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.portfolio-summary h2 {
+    font-size: 1.8em;
+    margin: 10px 0;
+    color: #333;
+    font-weight: bold;
 }
 
 .portfolio-summary p {
+    font-size: 1.2em;
+    margin: 10px 0;
+    color: #555;
+}
+
+.portfolio-summary .label {
+    font-weight: bold;
+    color: #777;
+}
+
+.portfolio-summary .value {
     font-size: 1.5em;
     font-weight: bold;
 }
 
 .positive {
-    color: green;
+    color: #28a745;
 }
 
 .negative {
-    color: red;
+    color: #dc3545;
 }

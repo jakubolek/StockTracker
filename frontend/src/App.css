@@ -1,5 +1,6 @@
 .App {
     text-align: center;
+    max-width: 95%;
 }
 
 .App-logo {
@@ -35,4 +36,54 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+.top-section {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.stock-form, .portfolio-summary {
+    flex: 1;
+    margin: 10px;
+}
+
+.stock-form {
+    max-width: 45%;
+}
+
+.portfolio-summary {
+    max-width: 45%;
+}
+
+.footer {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    color: #666;
+    text-align: center;
+    font-size: 0.8em;
+    width: 100%;
+}
+
+.social-icons {
+    margin-bottom: 10px;
+}
+
+.social-icons a {
+    margin: 0 10px;
+}
+
+.social-icons a:hover {
+    color: #0056b3;
+}
+
+.footer a {
+    text-decoration: none;
+}
+
+.footer p {
+    margin: 0;
 }
