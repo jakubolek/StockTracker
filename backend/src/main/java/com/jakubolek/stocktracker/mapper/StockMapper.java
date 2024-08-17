@@ -20,7 +20,7 @@ public class StockMapper {
     public StockDto toDto(Stock stock) {
         return StockDto.builder()
                 .id(stock.getId())
-                .symbol(stock.getSymbol())
+                .symbol(stock.getSymbol().toUpperCase())
                 .name(stock.getName())
                 .purchaseDate(stock.getPurchaseDate())
                 .purchasePrice(stock.getPurchasePrice())

@@ -2,6 +2,7 @@ package com.jakubolek.stocktracker.service.impl;
 
 import com.jakubolek.stocktracker.calculator.StockAggregator;
 import com.jakubolek.stocktracker.dto.StockDto;
+import com.jakubolek.stocktracker.helper.StockPriceHelper;
 import com.jakubolek.stocktracker.mapper.StockMapper;
 import com.jakubolek.stocktracker.model.PortfolioSummary;
 import com.jakubolek.stocktracker.model.Stock;
@@ -13,6 +14,7 @@ import com.jakubolek.stocktracker.validation.StockValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +27,7 @@ public class StockServiceImpl implements StockService {
     private final StockMapper stockMapper;
     private final StockAggregator stockAggregator;
     private final StockValidator stockValidator;
+    private final StockPriceHelper stockPriceHelper;
 
     @Override
     public StockDto addStock(StockDto stockDto) {
@@ -44,14 +47,72 @@ public class StockServiceImpl implements StockService {
     @Override
     public List<StockDto> getTransactions() {
         List<StockDto> stocks = getAllStocks();
-        Map<String, StockPrice> latestPrices = stockPriceService.fetchLatestPricesForSymbols(stocks);
+        LocalDate today = LocalDate.now();
+
+        // Pobierz ceny z bazy danych
+        Map<String, StockPrice> latestPrices = stockPriceService.getLatestPricesForSymbols(stocks);
+        Map<String, StockPrice> prices7DaysAgo = stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(7));
+        Map<String, StockPrice> prices30DaysAgo = stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(30));
 
         stocks.forEach(stock -> {
-            StockPrice latestPrice = latestPrices.get(stock.getSymbol());
-            if (latestPrice != null) {
-                stock.setCurrentPrice(latestPrice.getPrice());
-                stock.setProfitOrLoss((latestPrice.getPrice() - stock.getPurchasePrice()) * stock.getQuantity());
-                stock.setPercentageChange(((latestPrice.getPrice() - stock.getPurchasePrice()) / stock.getPurchasePrice()) * 100);
+            String symbol = stock.getSymbol().toUpperCase();
+
+            Double currentPrice = Optional.ofNullable(latestPrices.get(symbol))
+                    .map(StockPrice::getPrice)
+                    .orElseGet(() -> {
+                        Map<LocalDate, Double> historicalPrices = stockPriceHelper.fetchPricesFromExternalService(symbol);
+                        Double fetchedPrice = historicalPrices.get(today);
+
+                        stockPriceService.fetchAndSaveStockPrice(
+                                StockDto.builder().symbol(symbol).build(),
+                                fetchedPrice
+                        );
+
+                        historicalPrices.forEach((date, price) -> {
+                            if (date.equals(today.minusDays(7))) {
+                                stockPriceService.fetchAndSaveStockPrice(
+                                        StockDto.builder().symbol(symbol).build(),
+                                        price,
+                                        date
+                                );
+                            } else if (date.equals(today.minusDays(30))) {
+                                stockPriceService.fetchAndSaveStockPrice(
+                                        StockDto.builder().symbol(symbol).build(),
+                                        price,
+                                        date
+                                );
+                            }
+                        });
+
+                        return fetchedPrice;
+                    });
+
+            stock.setCurrentPrice(currentPrice);
+
+            Double price7DaysAgo = Optional.ofNullable(prices7DaysAgo.get(symbol))
+                    .map(StockPrice::getPrice)
+                    .orElseGet(() -> stockPriceHelper.fetchPricesFromExternalService(symbol).get(today.minusDays(7)));
+
+            Double price30DaysAgo = Optional.ofNullable(prices30DaysAgo.get(symbol))
+                    .map(StockPrice::getPrice)
+                    .orElseGet(() -> stockPriceHelper.fetchPricesFromExternalService(symbol).get(today.minusDays(30)));
+
+            stock.setPrice7DaysAgo(price7DaysAgo);
+            stock.setPrice30DaysAgo(price30DaysAgo);
+
+            if (currentPrice != null) {
+                stock.setProfitOrLoss((currentPrice - stock.getPurchasePrice()) * stock.getQuantity());
+                stock.setPercentageChange(((currentPrice - stock.getPurchasePrice()) / stock.getPurchasePrice()) * 100);
+            }
+
+            if (price7DaysAgo != null) {
+                stock.setProfitOrLoss7Days((currentPrice - price7DaysAgo) * stock.getQuantity());
+                stock.setPercentageChange7Days(((currentPrice - price7DaysAgo) / price7DaysAgo) * 100);
+            }
+
+            if (price30DaysAgo != null) {
+                stock.setProfitOrLoss30Days((currentPrice - price30DaysAgo) * stock.getQuantity());
+                stock.setPercentageChange30Days(((currentPrice - price30DaysAgo) / price30DaysAgo) * 100);
             }
         });
 

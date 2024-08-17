@@ -7,7 +7,6 @@ import com.jakubolek.stocktracker.service.StockPriceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +20,7 @@ public class StockPriceServiceImpl implements StockPriceService {
     private final StockPriceRepository stockPriceRepository;
 
     @Override
-    public Map<String, StockPrice> fetchLatestPricesForSymbols(List<StockDto> stocks) {
+    public Map<String, StockPrice> getLatestPricesForSymbols(List<StockDto> stocks) {
         List<String> symbols = stocks.stream().map(StockDto::getSymbol).distinct().collect(Collectors.toList());
         List<StockPrice> prices = stockPriceRepository.findBySymbolInOrderByPriceDateDesc(symbols);
 
@@ -34,16 +33,33 @@ public class StockPriceServiceImpl implements StockPriceService {
     }
 
     @Override
-    public void fetchAndSaveStockPrice(StockDto stock, BigDecimal currentPrice) {
-        if (currentPrice != null) {
-            StockPrice stockPrice = StockPrice.builder()
-                    .symbol(stock.getSymbol())
-                    .name(stock.getName())
-                    .price(currentPrice.doubleValue())
-                    .priceDate(LocalDate.now())
-                    .build();
+    public Map<String, StockPrice> getPricesForSymbolsOnDate(List<StockDto> stocks, LocalDate date) {
+        List<String> symbols = stocks.stream().map(StockDto::getSymbol).distinct().collect(Collectors.toList());
+        List<StockPrice> prices = stockPriceRepository.findBySymbolInAndPriceDate(symbols, date);
 
-            stockPriceRepository.save(stockPrice);
+        Map<String, StockPrice> pricesOnDate = new HashMap<>();
+        prices.forEach(price -> pricesOnDate.put(price.getSymbol(), price));
+
+        return pricesOnDate;
+    }
+
+    @Override
+    public void fetchAndSaveStockPrice(StockDto stock, Double price) {
+        fetchAndSaveStockPrice(stock, price, LocalDate.now());
+    }
+
+    @Override
+    public void fetchAndSaveStockPrice(StockDto stock, Double currentPrice, LocalDate date) {
+        if (currentPrice != null) {
+            if (!stockPriceRepository.existsBySymbolAndPriceDate(stock.getSymbol().toUpperCase(), date)) {
+                StockPrice stockPrice = StockPrice.builder()
+                        .symbol(stock.getSymbol())
+                        .price(currentPrice)
+                        .priceDate(date)
+                        .build();
+
+                stockPriceRepository.save(stockPrice);
+            }
         } else {
             throw new IllegalArgumentException("Failed to fetch price for: " + stock.getSymbol());
         }

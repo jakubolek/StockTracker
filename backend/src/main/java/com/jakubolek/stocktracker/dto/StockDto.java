@@ -22,4 +22,10 @@ public class StockDto {
     private Double currentPrice;
     private Double profitOrLoss;
     private Double percentageChange;
+    private Double price7DaysAgo;
+    private Double price30DaysAgo;
+    private Double profitOrLoss7Days;
+    private Double percentageChange7Days;
+    private Double profitOrLoss30Days;
+    private Double percentageChange30Days;
 }

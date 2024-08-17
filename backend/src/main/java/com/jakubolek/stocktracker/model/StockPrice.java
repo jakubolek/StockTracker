@@ -22,7 +22,6 @@ public class StockPrice {
     private Long id;
 
     private String symbol;
-    private String name;
     private Double price;
     private LocalDate priceDate;
 }
