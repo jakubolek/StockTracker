@@ -21,7 +21,7 @@ public class StockPriceScheduler {
     private final StockPriceRepository stockPriceRepository;
     private final StockPriceHelper stockPriceHelper;
 
-    @Scheduled(cron = "0 0 4,16,21 * * *")
+    @Scheduled(cron = "0 0 0,4,16,21 * * *")
     public void updateStockPrices() {
         LocalDate today = LocalDate.now();
         System.out.println("Updating stock prices: " + LocalDateTime.now());

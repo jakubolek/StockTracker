@@ -46,14 +46,11 @@ public class StockServiceImpl implements StockService {
         List<StockDto> stocks = getAllStocks();
         LocalDate today = LocalDate.now();
 
-        Map<String, StockPrice> latestPrices = Optional.ofNullable(stockPriceService.getPricesForSymbolsOnDate(stocks, today))
-                .orElse(stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(1)));
+        Map<String, StockPrice> latestPrices = stockPriceService.getPricesForSymbolsOnDate(stocks, today);
 
-        Map<String, StockPrice> prices7DaysAgo = Optional.ofNullable(stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(7)))
-                .orElse(stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(8)));
+        Map<String, StockPrice> prices7DaysAgo = stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(7));
 
-        Map<String, StockPrice> prices30DaysAgo = Optional.ofNullable(stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(30)))
-                .orElse(stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(31)));
+        Map<String, StockPrice> prices30DaysAgo = stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(30));
 
         stocks.forEach(stock -> {
             String symbol = stock.getSymbol().toUpperCase();
