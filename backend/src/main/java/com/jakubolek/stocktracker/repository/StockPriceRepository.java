@@ -9,8 +9,6 @@ import java.util.List;
 
 @Repository
 public interface StockPriceRepository extends JpaRepository<StockPrice, Long> {
-    List<StockPrice> findBySymbolInOrderByPriceDateDesc(List<String> symbols);
-
     List<StockPrice> findBySymbolInAndPriceDate(List<String> symbols, LocalDate date);
 
     boolean existsBySymbolAndPriceDate(String symbol, LocalDate priceDate);

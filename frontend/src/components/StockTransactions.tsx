@@ -33,8 +33,8 @@ const StockTransactions: React.FC = () => {
             });
     };
 
-    const formatPercentage = (value: number | undefined) => {
-        return value !== undefined ? `${value.toFixed(2)}%` : "N/A";
+    const formatPercentage = (value: number | null | undefined) => {
+        return value != null ? `${value.toFixed(2)}%` : "N/A";
     };
 
     const getProfitLossClass = (value: number | undefined) => {

@@ -9,10 +9,7 @@ import java.util.Map;
 
 public interface StockPriceService {
 
-    Map<String, StockPrice> getLatestPricesForSymbols(List<StockDto> stocks);
-
     Map<String, StockPrice> getPricesForSymbolsOnDate(List<StockDto> stocks, LocalDate date);
-
 
     void fetchAndSaveStockPrice(StockDto stock, Double currentPrice);
 

@@ -20,19 +20,6 @@ public class StockPriceServiceImpl implements StockPriceService {
     private final StockPriceRepository stockPriceRepository;
 
     @Override
-    public Map<String, StockPrice> getLatestPricesForSymbols(List<StockDto> stocks) {
-        List<String> symbols = stocks.stream().map(StockDto::getSymbol).distinct().collect(Collectors.toList());
-        List<StockPrice> prices = stockPriceRepository.findBySymbolInOrderByPriceDateDesc(symbols);
-
-        Map<String, StockPrice> latestPrices = new HashMap<>();
-        prices.forEach(price -> latestPrices.putIfAbsent(price.getSymbol(), price));
-
-        latestPrices.entrySet().removeIf(entry -> !entry.getValue().getPriceDate().isEqual(LocalDate.now()));
-
-        return latestPrices;
-    }
-
-    @Override
     public Map<String, StockPrice> getPricesForSymbolsOnDate(List<StockDto> stocks, LocalDate date) {
         List<String> symbols = stocks.stream().map(StockDto::getSymbol).distinct().collect(Collectors.toList());
         List<StockPrice> prices = stockPriceRepository.findBySymbolInAndPriceDate(symbols, date);

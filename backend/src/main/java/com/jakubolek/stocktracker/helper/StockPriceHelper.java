@@ -69,4 +69,19 @@ public class StockPriceHelper {
             }
         }
     }
+
+    public Map<LocalDate, Double> getStockPrices(String symbol) {
+        LocalDate today = LocalDate.now();
+        LocalDate date7DaysAgo = today.minusDays(7);
+        LocalDate date30DaysAgo = today.minusDays(30);
+
+        Map<LocalDate, Double> historicalPrices = fetchPricesFromExternalService(symbol);
+
+        Map<LocalDate, Double> priceMap = new HashMap<>();
+        priceMap.put(today, historicalPrices.get(today));
+        priceMap.put(date7DaysAgo, historicalPrices.get(date7DaysAgo));
+        priceMap.put(date30DaysAgo, historicalPrices.get(date30DaysAgo));
+
+        return priceMap;
+    }
 }

@@ -2,7 +2,6 @@ package com.jakubolek.stocktracker.service.impl;
 
 import com.jakubolek.stocktracker.calculator.StockAggregator;
 import com.jakubolek.stocktracker.dto.StockDto;
-import com.jakubolek.stocktracker.helper.StockPriceHelper;
 import com.jakubolek.stocktracker.mapper.StockMapper;
 import com.jakubolek.stocktracker.model.Stock;
 import com.jakubolek.stocktracker.model.StockPrice;
@@ -26,7 +25,6 @@ public class StockServiceImpl implements StockService {
     private final StockMapper stockMapper;
     private final StockAggregator stockAggregator;
     private final StockValidator stockValidator;
-    private final StockPriceHelper stockPriceHelper;
 
     @Override
     public StockDto addStock(StockDto stockDto) {
@@ -48,68 +46,36 @@ public class StockServiceImpl implements StockService {
         List<StockDto> stocks = getAllStocks();
         LocalDate today = LocalDate.now();
 
-        // Pobierz ceny z bazy danych
-        Map<String, StockPrice> latestPrices = stockPriceService.getLatestPricesForSymbols(stocks);
-        Map<String, StockPrice> prices7DaysAgo = stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(7));
-        Map<String, StockPrice> prices30DaysAgo = stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(30));
+        Map<String, StockPrice> latestPrices = Optional.ofNullable(stockPriceService.getPricesForSymbolsOnDate(stocks, today))
+                .orElse(stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(1)));
+
+        Map<String, StockPrice> prices7DaysAgo = Optional.ofNullable(stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(7)))
+                .orElse(stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(8)));
+
+        Map<String, StockPrice> prices30DaysAgo = Optional.ofNullable(stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(30)))
+                .orElse(stockPriceService.getPricesForSymbolsOnDate(stocks, today.minusDays(31)));
 
         stocks.forEach(stock -> {
             String symbol = stock.getSymbol().toUpperCase();
 
-            Double currentPrice = Optional.ofNullable(latestPrices.get(symbol))
-                    .map(StockPrice::getPrice)
-                    .orElseGet(() -> {
-                        Map<LocalDate, Double> historicalPrices = stockPriceHelper.fetchPricesFromExternalService(symbol);
-                        Double fetchedPrice = historicalPrices.get(today);
-
-                        stockPriceService.fetchAndSaveStockPrice(
-                                StockDto.builder().symbol(symbol).build(),
-                                fetchedPrice
-                        );
-
-                        historicalPrices.forEach((date, price) -> {
-                            if (date.equals(today.minusDays(7))) {
-                                stockPriceService.fetchAndSaveStockPrice(
-                                        StockDto.builder().symbol(symbol).build(),
-                                        price,
-                                        date
-                                );
-                            } else if (date.equals(today.minusDays(30))) {
-                                stockPriceService.fetchAndSaveStockPrice(
-                                        StockDto.builder().symbol(symbol).build(),
-                                        price,
-                                        date
-                                );
-                            }
-                        });
-
-                        return fetchedPrice;
-                    });
-
-            stock.setCurrentPrice(currentPrice);
-
-            Double price7DaysAgo = Optional.ofNullable(prices7DaysAgo.get(symbol))
-                    .map(StockPrice::getPrice)
-                    .orElseGet(() -> stockPriceHelper.fetchPricesFromExternalService(symbol).get(today.minusDays(7)));
-
-            Double price30DaysAgo = Optional.ofNullable(prices30DaysAgo.get(symbol))
-                    .map(StockPrice::getPrice)
-                    .orElseGet(() -> stockPriceHelper.fetchPricesFromExternalService(symbol).get(today.minusDays(30)));
-
-            stock.setPrice7DaysAgo(price7DaysAgo);
-            stock.setPrice30DaysAgo(price30DaysAgo);
+            Double currentPrice = latestPrices.get(symbol) != null ? latestPrices.get(symbol).getPrice() : null;
+            Double price7DaysAgo = prices7DaysAgo.get(symbol) != null ? prices7DaysAgo.get(symbol).getPrice() : null;
+            Double price30DaysAgo = prices30DaysAgo.get(symbol) != null ? prices30DaysAgo.get(symbol).getPrice() : null;
 
             if (currentPrice != null) {
+                stock.setCurrentPrice(currentPrice);
                 stock.setProfitOrLoss((currentPrice - stock.getPurchasePrice()) * stock.getQuantity());
                 stock.setPercentageChange(((currentPrice - stock.getPurchasePrice()) / stock.getPurchasePrice()) * 100);
             }
 
             if (price7DaysAgo != null) {
+                stock.setPrice7DaysAgo(price7DaysAgo);
                 stock.setProfitOrLoss7Days((currentPrice - price7DaysAgo) * stock.getQuantity());
                 stock.setPercentageChange7Days(((currentPrice - price7DaysAgo) / price7DaysAgo) * 100);
             }
 
             if (price30DaysAgo != null) {
+                stock.setPrice30DaysAgo(price30DaysAgo);
                 stock.setProfitOrLoss30Days((currentPrice - price30DaysAgo) * stock.getQuantity());
                 stock.setPercentageChange30Days(((currentPrice - price30DaysAgo) / price30DaysAgo) * 100);
             }
