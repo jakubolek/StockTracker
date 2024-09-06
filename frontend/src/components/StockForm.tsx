@@ -23,12 +23,23 @@ const StockForm: React.FC = () => {
             });
     };
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        const parsedValue = parseFloat(value.replace(',', '.').trim());
+
+        if (name === 'purchasePrice') {
+            setPurchasePrice(parsedValue);
+        } else if (name === 'quantity') {
+            setQuantity(parsedValue);
+        }
+    };
+
     return (
         <form className="stock-form" onSubmit={handleSubmit}>
             <h2>Add New Stock</h2>
             <div className="form-group">
                 <label>Symbol:</label>
-                <input type="text" value={symbol} onChange={(e) => setSymbol(e.target.value)} required/>
+                <input type="text" value={symbol} onChange={(e) => setSymbol(e.target.value.trim())} required/>
             </div>
             <div className="form-group">
                 <label>Name:</label>
@@ -40,13 +51,11 @@ const StockForm: React.FC = () => {
             </div>
             <div className="form-group">
                 <label>Purchase Price:</label>
-                <input type="number" value={purchasePrice}
-                       onChange={(e) => setPurchasePrice(parseFloat(e.target.value))} required/>
+                <input type="number" name="purchasePrice" value={purchasePrice} onChange={handleInputChange} required/>
             </div>
             <div className="form-group">
                 <label>Quantity:</label>
-                <input type="number" value={quantity} onChange={(e) => setQuantity(parseFloat(e.target.value))}
-                       required/>
+                <input type="number" name="quantity" value={quantity} onChange={handleInputChange} required/>
             </div>
             <button className="submit-button" type="submit">Add Stock</button>
         </form>

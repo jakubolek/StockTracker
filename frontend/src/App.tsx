@@ -15,8 +15,8 @@ const App: React.FC = () => {
                 <StockForm/>
                 <PortfolioSummary/>
             </div>
-            <StockTransactions/>
             <AggregatedReport/>
+            <StockTransactions/>
             <footer className="footer">
                 <div className="social-icons">
                     <a href="https://github.com/jakubolek" target="_blank" rel="noopener noreferrer">
