@@ -2,6 +2,7 @@ package com.jakubolek.stocktracker.controller;
 
 import com.jakubolek.stocktracker.calculator.InvestmentSummaryCalculator;
 import com.jakubolek.stocktracker.dto.StockDto;
+import com.jakubolek.stocktracker.dto.StockSearchDto;
 import com.jakubolek.stocktracker.model.PortfolioSummary;
 import com.jakubolek.stocktracker.service.StockService;
 import lombok.AllArgsConstructor;
@@ -49,5 +50,10 @@ public class StockController {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity.status(400).body(ex.getMessage());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<StockSearchDto>> searchStocks(@RequestParam String query) {
+        return ResponseEntity.ok(stockService.searchStocks(query));
     }
 }

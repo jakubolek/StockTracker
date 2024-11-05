@@ -1,6 +1,7 @@
 package com.jakubolek.stocktracker.service;
 
 import com.jakubolek.stocktracker.dto.StockDto;
+import com.jakubolek.stocktracker.dto.StockSearchDto;
 
 import java.util.List;
 
@@ -15,5 +16,7 @@ public interface StockService {
     void deleteStock(Long id);
 
     List<StockDto> getAggregatedReport();
+
+    List<StockSearchDto> searchStocks(String query);
 
 }

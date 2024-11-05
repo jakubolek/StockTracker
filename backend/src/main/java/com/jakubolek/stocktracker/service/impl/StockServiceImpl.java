@@ -2,6 +2,7 @@ package com.jakubolek.stocktracker.service.impl;
 
 import com.jakubolek.stocktracker.calculator.StockAggregator;
 import com.jakubolek.stocktracker.dto.StockDto;
+import com.jakubolek.stocktracker.dto.StockSearchDto;
 import com.jakubolek.stocktracker.mapper.StockMapper;
 import com.jakubolek.stocktracker.model.Stock;
 import com.jakubolek.stocktracker.model.StockPrice;
@@ -108,4 +109,21 @@ public class StockServiceImpl implements StockService {
         return new ArrayList<>(aggregatedStocks.values());
     }
 
+    @Override
+    public List<StockSearchDto> searchStocks(String query) {
+        return new ArrayList<>(stockRepository.findBySymbolContainingOrNameContaining(query, query)
+                .stream()
+                .map(stock -> {
+                    StockSearchDto dto = new StockSearchDto();
+                    dto.setSymbol(stock.getSymbol());
+                    dto.setName(stock.getName());
+                    return dto;
+                })
+                .collect(Collectors.toMap(
+                        StockSearchDto::getSymbol,
+                        dto -> dto,
+                        (existing, replacement) -> existing
+                ))
+                .values());
+    }
 }

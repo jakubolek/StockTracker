@@ -2,6 +2,7 @@ import axios from 'axios';
 import {Stock} from "../model/Stock";
 import {StockDto} from "../model/StockDto";
 import {PortfolioSummaryData} from "../model/PortfolioSummaryData";
+import {StockSearchDto} from "../model/StockSearchDto";
 
 const API_URL = '/api/stocks';
 
@@ -24,6 +25,12 @@ class StockService {
 
     getPortfolioSummary() {
         return axios.get<PortfolioSummaryData>(`${API_URL}/portfolio-summary`);
+    }
+
+    searchStocks(query: string) {
+        return axios.get<StockSearchDto[]>(`${API_URL}/search`, {
+            params: { query }
+        });
     }
 
 }
