@@ -13,6 +13,8 @@ const StockForm: React.FC = () => {
 
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [searchResults, setSearchResults] = useState<StockSearchDto[]>([]);
+    const [focusedField, setFocusedField] = useState<'symbol' | 'name' | null>(null);
+    const [isClickingAutocomplete, setIsClickingAutocomplete] = useState<boolean>(false);
 
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
@@ -52,42 +54,79 @@ const StockForm: React.FC = () => {
     };
 
     useEffect(() => {
+        if (focusedField) {
         handleSearch(searchQuery);
-    }, [searchQuery]);
+        }
+    }, [searchQuery, focusedField]);
+
+    const handleAutocompleteSelect = (result: StockSearchDto) => {
+        setSymbol(result.symbol);
+        setName(result.name);
+        setSearchResults([]);
+    };
+
+    const renderAutocompleteResults = () => (
+        searchResults.length > 0 && (
+            <div
+                className="autocomplete-results"
+                onMouseDown={() => setIsClickingAutocomplete(true)}
+                onMouseUp={() => setIsClickingAutocomplete(false)}
+            >
+                {searchResults.map((result) => (
+                    <div
+                        key={result.symbol}
+                        className="autocomplete-item"
+                        onClick={() => handleAutocompleteSelect(result)}
+                    >
+                        {result.symbol} - {result.name}
+                    </div>
+                ))}
+            </div>
+        )
+    );
 
     return (
         <form className="stock-form" onSubmit={handleSubmit}>
             <h2>Add New Stock</h2>
             <div className="form-group">
                 <label>Symbol:</label>
-                <input type="text" value={symbol} onChange={(e) => {
-                    const inputValue = e.target.value.trim();
+                <input
+                    type="text"
+                    value={symbol}
+                    onFocus={() => setFocusedField('symbol')}
+                    onBlur={() => {
+                        if (!isClickingAutocomplete) {
+                            setFocusedField(null);
+                        }
+                    }}
+                    onChange={(e) => {
+                    const inputValue = e.target.value;
                     setSymbol(inputValue);
                     setSearchQuery(inputValue);
                 }}
                        required
                 />
-                {searchResults.length > 0 && (
-                    <div className="autocomplete-results">
-                        {searchResults.map((result) => (
-                            <div
-                                key={result.symbol}
-                                className="autocomplete-item"
-                                onClick={() => {
-                                    setSymbol(result.symbol);
-                                    setName(result.name);
-                                    setSearchResults([]);
-                                }}
-                            >
-                                {result.symbol} - {result.name}
-                            </div>
-                        ))}
-                    </div>
-                )}
+                {focusedField === 'symbol' && renderAutocompleteResults()}
             </div>
             <div className="form-group">
                 <label>Name:</label>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} required/>
+                <input
+                    type="text"
+                    value={name}
+                    onFocus={() => setFocusedField('name')}
+                    onBlur={() => {
+                        if (!isClickingAutocomplete) {
+                            setFocusedField(null);
+                        }
+                    }}
+                    onChange={(e) => {
+                        const inputValue = e.target.value;
+                        setName(inputValue);
+                        setSearchQuery(inputValue);
+                    }}
+                    required
+                />
+                {focusedField === 'name' && renderAutocompleteResults()}
             </div>
             <div className="form-group">
                 <label>Purchase Date:</label>
@@ -104,6 +143,6 @@ const StockForm: React.FC = () => {
             <button className="submit-button" type="submit">Add Stock</button>
         </form>
     );
-}
+};
 
 export default StockForm;

@@ -111,7 +111,7 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public List<StockSearchDto> searchStocks(String query) {
-        return new ArrayList<>(stockRepository.findBySymbolContainingOrNameContaining(query, query)
+        return new ArrayList<>(stockRepository.findBySymbolContainingIgnoreCaseOrNameContainingIgnoreCase(query, query)
                 .stream()
                 .map(stock -> {
                     StockSearchDto dto = new StockSearchDto();
