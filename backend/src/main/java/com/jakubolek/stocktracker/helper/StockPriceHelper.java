@@ -49,7 +49,7 @@ public class StockPriceHelper {
     private String buildStooqUrl(String symbol) {
         return String.format(stooqBaseUrl,
                 symbol.toUpperCase(),
-                LocalDate.now().minusDays(31).format(DateTimeFormatter.BASIC_ISO_DATE),
+                LocalDate.now().minusDays(50).format(DateTimeFormatter.BASIC_ISO_DATE),
                 LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE));
     }
 
