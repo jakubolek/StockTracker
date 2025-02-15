@@ -30,7 +30,7 @@ const AggregatedReport: React.FC = () => {
                         <td>{stock.name}</td>
                         <td>{stock.symbol}</td>
                         <td>{stock.purchasePrice.toFixed(2)}</td>
-                        <td>{stock.quantity}</td>
+                        <td>{stock.quantity.toFixed(6)}</td>
                         <td>{stock.currentPrice?.toFixed(2)}</td>
                         <td className={stock.profitOrLoss && stock.profitOrLoss >= 0 ? 'positive' : 'negative'}>
                             {stock.profitOrLoss?.toFixed(2)} PLN
