@@ -1,28 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {stockService} from '../services/StockService';
+import React from 'react';
+import { usePortfolioSummary } from '../hooks/UsePortfolioSummary';
 import '../css/PortfolioSummary.css';
-import {PortfolioSummaryData} from "../model/PortfolioSummaryData";
 
 const PortfolioSummary: React.FC = () => {
-    const [summary, setSummary] = useState<PortfolioSummaryData | null>(null);
-
-    useEffect(() => {
-        fetchPortfolioSummary();
-    }, []);
-
-    const fetchPortfolioSummary = () => {
-        stockService.getPortfolioSummary()
-            .then((response) => {
-                setSummary(response.data);
-            })
-            .catch((error) => {
-                console.error('Error fetching portfolio summary:', error);
-            });
-    };
-
-    const getValueClass = (value: number) => {
-        return value >= 0 ? 'positive' : 'negative';
-    };
+    const { summary, getValueClass } = usePortfolioSummary();
 
     return (
         <div className="portfolio-summary">

@@ -1,22 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {stockService} from '../services/StockService';
-import {Stock} from "../model/Stock";
+import React from 'react';
+import { useAggregatedReport } from '../hooks/UseAggregatedReport';
 import '../css/Reports.css';
 
 const AggregatedReport: React.FC = () => {
-    const [aggregatedReport, setAggregatedReport] = useState<Stock[]>([]);
-
-    useEffect(() => {
-        stockService.getAggregatedReport()
-            .then(response => {
-                if (response) {
-                    setAggregatedReport(response.data);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching aggregated report:', error);
-            });
-    }, []);
+    const { aggregatedReport } = useAggregatedReport();
 
     return (
         <div className="aggregated-report">

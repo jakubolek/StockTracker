@@ -1,68 +1,34 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState } from 'react';
+import { useStockForm } from '../hooks/UseStockForm';
+import { useStockSearch } from '../hooks/UseStockSearch';
 import {stockService} from '../services/StockService';
 import '../css/StockForm.css';
 import {StockDto} from "../model/StockDto";
 import {StockSearchDto} from "../model/StockSearchDto";
 
 const StockForm: React.FC = () => {
-    const [symbol, setSymbol] = useState<string>('');
-    const [name, setName] = useState<string>('');
-    const [purchaseDate, setPurchaseDate] = useState<string>('');
-    const [purchasePrice, setPurchasePrice] = useState<number>(0);
-    const [quantity, setQuantity] = useState<number>(0);
+    const { formData, handleSubmit, handleInputChange } = useStockForm();
+    const { symbol, name, purchaseDate, purchasePrice, quantity } = formData;
 
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const [searchResults, setSearchResults] = useState<StockSearchDto[]>([]);
     const [focusedField, setFocusedField] = useState<'symbol' | 'name' | null>(null);
-    const [isClickingAutocomplete, setIsClickingAutocomplete] = useState<boolean>(false);
 
-    const handleSubmit = (event: React.FormEvent) => {
-        event.preventDefault();
-        const stockDto: StockDto = {symbol, name, purchaseDate, purchasePrice, quantity};
+    const { searchResults, isClickingAutocomplete, setIsClickingAutocomplete } = useStockSearch(searchQuery, focusedField);
+
+    const addStock = (stockDto: StockDto) => {
         stockService.addStock(stockDto)
-            .then(() => {
-                window.location.reload();
-            })
+            .then(() => window.location.reload())
             .catch((error) => {
                 alert('There was an error adding the stock!\n' + (error.response?.data || 'Unknown error'));
-                console.log(error.response?.data || error.message);
+                console.error(error.response?.data || error.message);
             });
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
-        const parsedValue = parseFloat(value.replace(',', '.').trim());
-
-        if (name === 'purchasePrice') {
-            setPurchasePrice(parsedValue);
-        } else if (name === 'quantity') {
-            setQuantity(parsedValue);
-        }
-    };
-
-    const handleSearch = async (query: string) => {
-        if (query.length > 1) {
-            try {
-                const results = await stockService.searchStocks(query);
-                setSearchResults(results.data);
-            } catch (error) {
-                console.error("Error fetching search results:", error);
-            }
-        } else {
-            setSearchResults([]);
-        }
-    };
-
-    useEffect(() => {
-        if (focusedField) {
-        handleSearch(searchQuery);
-        }
-    }, [searchQuery, focusedField]);
-
     const handleAutocompleteSelect = (result: StockSearchDto) => {
-        setSymbol(result.symbol);
-        setName(result.name);
-        setSearchResults([]);
+        setSearchQuery('');
+
+        handleInputChange({ target: { name: 'symbol', value: result.symbol } } as React.ChangeEvent<HTMLInputElement>);
+        handleInputChange({ target: { name: 'name', value: result.name } } as React.ChangeEvent<HTMLInputElement>);
     };
 
     const renderAutocompleteResults = () => (
@@ -85,61 +51,39 @@ const StockForm: React.FC = () => {
         )
     );
 
-    return (
-        <form className="stock-form" onSubmit={handleSubmit}>
-            <h2>Add New Stock</h2>
+    const renderInputField = (label: string, name: string, value: string | number, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void) => (
             <div className="form-group">
-                <label>Symbol:</label>
+            <label>{label}:</label>
                 <input
-                    type="text"
-                    value={symbol}
-                    onFocus={() => setFocusedField('symbol')}
+                type={name === 'purchaseDate' ? 'date' : 'text'}
+                value={value}
+                name={name}
+                onFocus={() => setFocusedField(name as 'symbol' | 'name')}
                     onBlur={() => {
-                        if (!isClickingAutocomplete) {
-                            setFocusedField(null);
-                        }
+                    if (!isClickingAutocomplete) setFocusedField(null);
                     }}
-                    onChange={(e) => {
-                    const inputValue = e.target.value;
-                    setSymbol(inputValue);
-                    setSearchQuery(inputValue);
-                }}
-                       required
-                />
-                {focusedField === 'symbol' && renderAutocompleteResults()}
-            </div>
-            <div className="form-group">
-                <label>Name:</label>
-                <input
-                    type="text"
-                    value={name}
-                    onFocus={() => setFocusedField('name')}
-                    onBlur={() => {
-                        if (!isClickingAutocomplete) {
-                            setFocusedField(null);
-                        }
-                    }}
-                    onChange={(e) => {
-                        const inputValue = e.target.value;
-                        setName(inputValue);
-                        setSearchQuery(inputValue);
-                    }}
+                onChange={onChange}
                     required
                 />
-                {focusedField === 'name' && renderAutocompleteResults()}
+            {focusedField === name && renderAutocompleteResults()}
             </div>
-            <div className="form-group">
-                <label>Purchase Date:</label>
-                <input type="date" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} required/>
-            </div>
-            <div className="form-group">
-                <label>Purchase Price:</label>
-                <input type="number" name="purchasePrice" value={purchasePrice} onChange={handleInputChange} required/>
-            </div>
-            <div className="form-group">
-                <label>Quantity:</label>
-                <input type="number" name="quantity" value={quantity} onChange={handleInputChange} required/>
-            </div>
+    );
+
+    return (
+        <form className="stock-form" onSubmit={(e) => handleSubmit(e, addStock)}>
+            <h2>Add New Stock</h2>
+            {renderInputField('Symbol', 'symbol', symbol, (e) => {
+                handleInputChange(e);
+                setSearchQuery(e.target.value);
+            })}
+            {renderInputField('Name', 'name', name, (e) => {
+                handleInputChange(e);
+                setSearchQuery(e.target.value);
+            })}
+            {renderInputField('Purchase Date', 'purchaseDate', purchaseDate, handleInputChange)}
+            {renderInputField('Purchase Price', 'purchasePrice', purchasePrice, handleInputChange)}
+            {renderInputField('Quantity', 'quantity', quantity, handleInputChange)}
+
             <button className="submit-button" type="submit">Add Stock</button>
         </form>
     );

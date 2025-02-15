@@ -67,3 +67,37 @@ table th:first-child, table td:first-child {
 table th:last-child, table td:last-child {
     border-right: none;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.pagination button {
+    padding: 8px 12px;
+    margin: 0 10px;
+    border: none;
+    background-color: #4169E1;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.pagination button:disabled {
+    background-color: #d0cece;
+    cursor: not-allowed;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.select-dropdown {
+    width: 200px;
+}

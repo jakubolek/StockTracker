@@ -1,52 +1,48 @@
-import React from 'react';
-import {stockService} from '../services/StockService';
-import {Stock} from "../model/Stock";
-import '../css/Reports.css';
+import React, {useState, useEffect} from 'react';
+import Select from 'react-select';
+import {formatPercentage, getProfitLossClass} from '../utils/Utils';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faTrash} from '@fortawesome/free-solid-svg-icons';
+import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
+import {useStockTransactions} from '../hooks/UseStockTransactions';
+import '../css/Reports.css';
 
 const StockTransactions: React.FC = () => {
-    const [stocks, setStocks] = React.useState<Stock[]>([]);
-
-    React.useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = () => {
-        stockService.getTransactions()
-            .then((response: any) => {
-                setStocks(response.data);
-            })
-            .catch((error: any) => {
-                console.error('There was an error retrieving the report!', error);
-            });
-    };
-
-    const handleDelete = (id: number) => {
-        stockService.deleteStock(id)
-            .then(() => {
-                setStocks(stocks.filter(stock => stock.id !== id));
-                window.location.reload();
-            })
-            .catch((error: any) => {
-                console.error('There was an error deleting the stock!', error);
-            });
-    };
-
-    const formatPercentage = (value: number | null | undefined) => {
-        return value != null ? `${value.toFixed(2)}%` : "N/A";
-    };
-
-    const getProfitLossClass = (value: number | undefined) => {
-        if (value !== undefined) {
-            return value >= 0 ? 'positive' : 'negative';
-        }
-        return '';
-    };
+    const {
+        months,
+        currentPage,
+        currentMonth,
+        currentItems,
+        handleMonthChange,
+        handleDelete,
+        setCurrentPage
+    } = useStockTransactions();
 
     return (
         <div className="stock-transactions">
-            <h2>Transactions table</h2>
+            <h2>Transactions</h2>
+            <div className="filters">
+                <Select
+                    className="select-dropdown"
+                    options={months.map(month => ({value: month, label: month}))}
+                    value={{value: currentMonth, label: currentMonth}}
+                    onChange={handleMonthChange}
+                />
+            </div>
+            <div className="pagination">
+                <button
+                    disabled={currentPage === 0}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                    <FaChevronLeft/>
+                </button>
+                <button
+                    disabled={currentPage === months.length - 1}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                    <FaChevronRight/>
+                </button>
+            </div>
             <table>
                 <thead>
                 <tr>
@@ -66,7 +62,7 @@ const StockTransactions: React.FC = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {stocks.map(stock => (
+                {currentItems.map(stock => (
                     <tr key={stock.id}>
                         <td>{stock.name}</td>
                         <td>{stock.symbol}</td>
